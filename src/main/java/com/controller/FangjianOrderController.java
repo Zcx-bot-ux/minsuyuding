@@ -9,6 +9,8 @@ import com.alibaba.fastjson.JSONObject;
 import java.util.*;
 import org.springframework.beans.BeanUtils;
 import javax.servlet.http.HttpServletRequest;
+
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.context.ContextLoader;
 import javax.servlet.ServletContext;
 import com.service.TokenService;
@@ -58,7 +60,8 @@ public class FangjianOrderController {
     private FangjianService fangjianService;
     @Autowired
     private YonghuService yonghuService;
-
+    @Autowired
+    private FangjianLiuyanService fangjianLiuyanService;
 
 
     /**
@@ -393,6 +396,81 @@ public class FangjianOrderController {
         if(!b){
             return R.error("操作出错");
         }
+        return R.ok();
+    }
+
+    /**
+     * 评价
+     */
+    @RequestMapping("/commentback")
+    @Transactional
+    public R commentback(@RequestBody Map<String, Object> params, HttpServletRequest request){
+        logger.debug("commentback方法:,,Controller:{},,params:{}",this.getClass().getName(),params);
+        
+        String orderNo = (String) params.get("orderNo");
+        String commentbackText = (String) params.get("commentbackText");
+        Integer fangjianCommentbackPingfenNumber = (Integer) params.get("fangjianCommentbackPingfenNumber");
+        
+        // 参数校验
+        if(StringUtils.isBlank(orderNo)){
+            return R.error(511,"订单编号不能为空");
+        }
+        
+        FangjianOrderEntity fangjianOrder = null;
+        
+        // 1. 先尝试根据订单编号查询
+        Wrapper<FangjianOrderEntity> orderWrapper = new EntityWrapper<FangjianOrderEntity>()
+            .eq("order_no", orderNo);
+        fangjianOrder = fangjianOrderService.selectOne(orderWrapper);
+        
+        // 2. 如果没找到，尝试根据订单ID查询（备用方案）
+        if(fangjianOrder == null){
+            try {
+                Integer orderId = Integer.valueOf(orderNo);
+                fangjianOrder = fangjianOrderService.selectById(orderId);
+                logger.debug("通过订单ID查询到订单: {}", fangjianOrder);
+            } catch (NumberFormatException e) {
+                // 不是数字，忽略
+            }
+        }
+        
+        if(fangjianOrder == null){
+            return R.error(511,"查不到该订单");
+        }
+        
+        // 3. 校验订单状态是否为已完成(状态3)
+        if(fangjianOrder.getFangjianOrderTypes() != 3){
+            return R.error(511,"订单未完成，不能评价");
+        }
+        
+        // 4. 检查是否已评价（根据订单编号或订单ID检查）
+        Wrapper<FangjianLiuyanEntity> queryWrapper = new EntityWrapper<FangjianLiuyanEntity>()
+            .eq("order_no", orderNo);
+        FangjianLiuyanEntity existingComment = fangjianLiuyanService.selectOne(queryWrapper);
+        if(existingComment != null){
+            return R.error(511,"该订单已评价");
+        }
+        
+        // 5. 保存评价到房间留言表
+        FangjianLiuyanEntity fangjianLiuyan = new FangjianLiuyanEntity();
+        fangjianLiuyan.setFangjianId(fangjianOrder.getFangjianId());
+        fangjianLiuyan.setYonghuId(fangjianOrder.getYonghuId());
+        // 如果订单编号为空，则使用订单ID作为order_no保存
+        String saveOrderNo = StringUtils.isNotBlank(fangjianOrder.getOrderNo()) ? fangjianOrder.getOrderNo() : String.valueOf(fangjianOrder.getId());
+        fangjianLiuyan.setOrderNo(saveOrderNo);
+        fangjianLiuyan.setFangjianLiuyanText(commentbackText);
+        // 如果有评分字段，取消下面这行的注释
+        // fangjianLiuyan.setReplyText(fangjianCommentbackPingfenNumber + "星评价"); 
+        fangjianLiuyan.setInsertTime(new Date());
+        fangjianLiuyan.setCreateTime(new Date());
+        fangjianLiuyanService.insert(fangjianLiuyan);
+        
+        // 6. 更新订单状态为已评价(状态4)
+        FangjianOrderEntity updateOrder = new FangjianOrderEntity();
+        updateOrder.setId(fangjianOrder.getId());
+        updateOrder.setFangjianOrderTypes(4);
+        fangjianOrderService.updateById(updateOrder);
+        
         return R.ok();
     }
 

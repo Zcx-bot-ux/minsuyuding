@@ -117,6 +117,13 @@ public class FangjianLiuyanEntity<T> implements Serializable {
 
 
     /**
+     * 订单编号
+     */
+    @TableField(value = "order_no")
+    private String orderNo;
+
+
+	/**
 	 * 设置：主键
 	 */
     public Integer getId() {
@@ -220,6 +227,18 @@ public class FangjianLiuyanEntity<T> implements Serializable {
     public void setCreateTime(Date createTime) {
         this.createTime = createTime;
     }
+    /**
+	 * 设置：订单编号
+	 */
+    public String getOrderNo() {
+        return orderNo;
+    }
+    /**
+	 * 获取：订单编号
+	 */
+    public void setOrderNo(String orderNo) {
+        this.orderNo = orderNo;
+    }
 
     @Override
     public String toString() {
@@ -227,6 +246,7 @@ public class FangjianLiuyanEntity<T> implements Serializable {
             "id=" + id +
             ", fangjianId=" + fangjianId +
             ", yonghuId=" + yonghuId +
+            ", orderNo=" + orderNo +
             ", fangjianLiuyanText=" + fangjianLiuyanText +
             ", replyText=" + replyText +
             ", insertTime=" + insertTime +

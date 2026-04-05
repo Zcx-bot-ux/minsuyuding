@@ -97,6 +97,12 @@ public class FangjianLiuyanView extends FangjianLiuyanEntity implements Serializ
 			*/
 			private Integer yonghuDelete;
 
+		//级联表 fangjian_order
+			/**
+			* 订单编号
+			*/
+			private String orderNo;
+
 	public FangjianLiuyanView() {
 
 	}
@@ -371,6 +377,20 @@ public class FangjianLiuyanView extends FangjianLiuyanEntity implements Serializ
 					*/
 					public void setYonghuDelete(Integer yonghuDelete) {
 						this.yonghuDelete = yonghuDelete;
+					}
+
+				//级联表的get和set fangjian_order
+					/**
+					* 获取： 订单编号
+					*/
+					public String getOrderNo() {
+						return orderNo;
+					}
+					/**
+					* 设置： 订单编号
+					*/
+					public void setOrderNo(String orderNo) {
+						this.orderNo = orderNo;
 					}
 
 
