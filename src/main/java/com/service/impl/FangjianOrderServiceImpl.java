@@ -30,7 +30,7 @@ public class FangjianOrderServiceImpl extends ServiceImpl<FangjianOrderDao, Fang
             params.put("page","1");
             params.put("limit","10");
         }
-        Page<FangjianOrderView> page =new Query<FangjianOrderView>(params).getPage();
+        Page<FangjianOrderView> page = new Query<FangjianOrderView>(params).getPage();
         page.setRecords(baseMapper.selectListView(page,params));
         return new PageUtils(page);
     }
