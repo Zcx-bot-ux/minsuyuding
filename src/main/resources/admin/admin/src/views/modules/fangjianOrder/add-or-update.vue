@@ -8,6 +8,12 @@
                 label-width="80px"
                 :style="{backgroundColor:addEditForm.addEditBoxColor}">
             <el-row>
+                <el-col :span="12">
+                    <el-form-item v-if="type=='info'" label="订单编号" prop="orderNo">
+                        <el-input v-model="ruleForm.orderNo" placeholder="订单编号" readonly></el-input>
+                    </el-form-item>
+                </el-col>
+
                 <el-col :span="12"  v-if="sessionTable !='fangjian'">
                     <el-form-item class="select" v-if="type!='info'"  label="房间信息" prop="fangjianId">
                         <el-select v-model="ruleForm.fangjianId" :disabled="ro.fangjianId" filterable placeholder="请选择房间信息" @change="fangjianChange">
@@ -153,6 +159,7 @@
                 fangjianForm: {},
                 yonghuForm: {},
                 ro:{
+                    orderNo: true,  // 订单编号在详情页只读
                     fangjianId: false,
                     yonghuId: false,
                     fangjianOrderTime: false,
@@ -160,6 +167,7 @@
                     fangjianOrderTypes: false,
                 },
                 ruleForm: {
+                    orderNo: '',  // 添加订单编号字段
                     fangjianId: '',
                     yonghuId: '',
                     fangjianOrderTime: '',
@@ -170,6 +178,9 @@
                 fangjianOptions : [],
                 yonghuOptions : [],
                 rules: {
+                   orderNo: [
+                              { required: false, message: '订单编号不能为空', trigger: 'blur' }
+                          ],
                    fangjianId: [
                               { required: true, message: '房间不能为空', trigger: 'blur' },
                               {  pattern: /^[1-9][0-9]*$/,

@@ -7,6 +7,10 @@
                 <el-row :gutter="20" class="slt" :style="{justifyContent:contents.searchBoxPosition=='1'?'flex-start':contents.searchBoxPosition=='2'?'center':'flex-end'}">
                                                         
                                          
+                    <el-form-item :label="contents.inputTitle == 1 ? '订单编号' : ''">
+                        <el-input prefix-icon="el-icon-search" v-model="searchForm.orderNo" placeholder="订单编号" clearable></el-input>
+                    </el-form-item>
+
                     <el-form-item :label="contents.inputTitle == 1 ? '房间名称' : ''">
                         <el-input prefix-icon="el-icon-search" v-model="searchForm.fangjianName" placeholder="房间名称" clearable></el-input>
                     </el-form-item>
@@ -697,7 +701,10 @@
                     sort: 'id',
                 }
 
-                                         
+                if (this.searchForm.orderNo != '' && this.searchForm.orderNo != undefined) {
+                    params['orderNo'] = '%' + this.searchForm.orderNo + '%'
+                }
+
                 if (this.searchForm.fangjianName!= '' && this.searchForm.fangjianName!= undefined) {
                     params['fangjianName'] = '%' + this.searchForm.fangjianName + '%'
                 }
